@@ -1,0 +1,27 @@
+{
+  "name": "hapi-todo",
+  "version": "1.0.0",
+  "description": "A Todo Backend implementation using Hapi.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pamo/hapi-todo.git"
+  },
+  "keywords": [
+    "hapi",
+    "todo",
+    "javascript"
+  ],
+  "author": "Pam Ocampo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pamo/hapi-todo/issues"
+  },
+  "homepage": "https://github.com/pamo/hapi-todo",
+  "dependencies": {
+    "hapi": "^8.4.0"
+  }
+}
