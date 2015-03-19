@@ -1,7 +1,7 @@
 {
   "name": "hapi-todo",
   "version": "1.0.0",
-  "description": "A Todo Backend implementation using Hapi.js",
+  "description": "A Todo Backend implementation using Hapi.js and MongoDB",
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/nodemon/bin/nodemon.js",
