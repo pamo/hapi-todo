@@ -1,15 +1,10 @@
-var Hapi = require('hapi');
-var dbOpts = require('./config.js').mongo;
-var server = new Hapi.Server();
+var Hapi        = require('hapi');
+var dbOpts      = require('./config.js').mongo;
+var Mongoose    = require('mongoose');
+var Todo        = require('./todo.js').Todo;
+var server      = new Hapi.Server();
 
-server.register({
-    register: require('hapi-mongodb'),
-    options: dbOpts
-}, function (err) {
-    if (err) {
-        throw err;
-    }
-});
+Mongoose.connect(dbOpts.url);
 
 server.connection({
     port: parseInt(process.env.PORT) || 3000,
@@ -21,53 +16,50 @@ server.start(function () {
 });
 
 var save = function(request, reply){
-    var todo = { 
-            title: request.payload.title, 
-            order: request.payload.order 
-        };
+    todo = new Todo();
+    todo.title = request.payload.title;
+    todo.order = request.payload.order;
+    todo.url = request.info.remoteAddress;
 
-    var db = request.server.plugins['hapi-mongodb'].db;
-
-    db.collection('todos').insert(todo, {w:1}, function (err, doc){
-        if (err){
-            return reply(Hapi.error.internal('Internal MongoDB error', err));
+    todo.save(function (err) {
+        if (!err) {
+            reply(todo).created(todo._id);    // HTTP 201
         } else {
-            reply(doc[0]);
+            reply(Hapi.error.internal('Internal MongoDB error', err));
         }
     });
 };
 
 var getAll = function(request, reply){
-    var db = request.server.plugins['hapi-mongodb'].db;
-    db.collection('todos').find().toArray(function(err, doc){
-        return reply(doc);
+    Todo.find({}, function (err, todos) {
+        if (!err) {
+            reply(todos);
+        } else {
+            reply(err);
+        }
     });
 };
 
 var getById = function(request, reply){
-    var db = request.server.plugins['hapi-mongodb'].db;
-    var ObjectID = request.server.plugins['hapi-mongodb'].ObjectID;
-    db.collection('todos')
-    .findOne({"_id": new ObjectID(request.params.id)}, function(err, doc){
-        return reply(doc);
+    Todo.findById(request.params.id, function(err, todo){
+        if (err){
+            reply(404);
+        }
+        reply(todo);
     });
 };
 
 var deleteAll = function(request, reply) {
-    var db = request.server.plugins['hapi-mongodb'].db;
-
-    db.collection('todos').remove({}, function (err){
-        if (err) return reply(Hapi.error.internal('Internal MongoDB error', err));
-        reply("Deleted all todos");
+   Todo.remove({}, function (err, todos) {
+       if (err) return reply(Hapi.error.internal('Internal MongoDB error', err));
+       return reply("Deleted all todos");
     });
 };
 
 var deleteById = function(request, reply) {
-    var db = request.server.plugins['hapi-mongodb'].db;
-    var ObjectID = request.server.plugins['hapi-mongodb'].ObjectID;
-
-    db.collection('todos').remove({"_id": new ObjectID(request.params.id)}, function (err){
+    Todo.findById(request.params.id, function (err, todo){
         if (err) return reply(Hapi.error.internal('Internal MongoDB error', err));
+        todo.remove();
         reply("Record Deleted");
     });
 };
