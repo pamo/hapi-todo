@@ -14,6 +14,11 @@ server.connection({
 server.start(function () {
     console.log('Server running at:', server.info.uri);
 });
+var addUrl = function(todo){
+   var baseUrl = server.info.protocol + '://' + server.info.address + ':' + server.info.port;
+   todo.url = baseUrl + '/' + todo._id;
+   return todo;
+}
 
 var save = function(request, reply){
     todo = new Todo();
@@ -23,7 +28,7 @@ var save = function(request, reply){
 
     todo.save(function (err) {
         if (!err) {
-            reply(todo).created(todo._id);    // HTTP 201
+            reply(addUrl(todo)).created(todo._id);    // HTTP 201
         } else {
             reply(Hapi.error.internal('Internal MongoDB error', err));
         }
@@ -31,9 +36,13 @@ var save = function(request, reply){
 };
 
 var getAll = function(request, reply){
+   var todosWithUrl = [];
     Todo.find({}, function (err, todos) {
         if (!err) {
-            reply(todos);
+           for(i in todos){
+              todosWithUrl.push(addUrl(todos[i]));
+           }
+           reply(todosWithUrl);
         } else {
             reply(err);
         }
@@ -45,7 +54,7 @@ var getById = function(request, reply){
         if (err){
             reply(404);
         }
-        reply(todo);
+        reply(addUrl(todo));
     });
 };
 
