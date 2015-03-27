@@ -14,6 +14,12 @@ exports.register = function(server, options, next) {
     });
 
     server.route({
+        method: 'PATCH',
+        path: '/{id}',
+        handler: controller.update
+    });
+
+    server.route({
         method: 'DELETE',
         path: '/',
         handler: controller.deleteAll

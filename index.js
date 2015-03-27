@@ -14,7 +14,6 @@ var plugins = [ { register: require('./routes.js') }];
 
 server.register(plugins, function (err) {
     if (err) { throw err; }
- 
     server.start(function () {
        console.log('Server running at:', server.info.uri);
     });

@@ -15,11 +15,25 @@ var save = function(request, reply){
     todo.save(function (err) {
         if (!err) {
             var serverInfo = request.server.info;
-            reply(addUrl(serverInfo, todo)).created(todo._id);    // HTTP 201
+            var response = addUrl(serverInfo, todo);
+            reply(response);
         } else {
             reply(Hapi.error.internal('Internal MongoDB error', err));
         }
     });
+};
+
+var update = function(request, reply){
+   Todo.findOneAndUpdate(request.params.id, request.payload, function (err, todo) {
+        if (!err) {
+           var serverInfo = request.server.info;
+           var response = addUrl(serverInfo, todo);
+           reply(response);
+        } else {
+           reply(Hapi.error.internal('Internal MongoDB error', err));
+        }
+    });
+
 };
 
 var getAll = function(request, reply){
@@ -38,12 +52,13 @@ var getAll = function(request, reply){
 };
 
 var getById = function(request, reply){
-    var serverInfo = request.server;
+    var serverInfo = request.server.info;
     Todo.findById(request.params.id, function(err, todo){
         if (err){
-            reply(404);
+            reply(err);
         }
-        reply(addUrl(serverInfo, todo));
+        var response = addUrl(serverInfo, todo);
+        reply(response);
     });
 };
 
@@ -64,6 +79,7 @@ var deleteById = function(request, reply) {
 
 var controller = {
     save: save,
+    update: update,
     getAll: getAll,
     deleteAll: deleteAll,
     getById: getById,
