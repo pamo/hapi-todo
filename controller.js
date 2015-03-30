@@ -1,61 +1,59 @@
 var Todo        = require('./todo.js').Todo;
-var addUrl = function(todo){
-   var baseUrl = 'http://' + process.env.HOST + ':' + process.env.PORT ;
+
+var addUrl = function(server, todo){
+   var baseUrl = 'http://' + server.host;
    todo.url = baseUrl + '/' + todo._id;
-   console.log(todo.url);
    return todo;
 }
 
 var save = function(request, reply){
-    todo = new Todo();
-    todo.title = request.payload.title;
-    todo.order = request.payload.order;
-    todo.url = request.info.remoteAddress;
+   todo = new Todo();
+   todo.title = request.payload.title;
+   todo.order = request.payload.order;
 
-    todo.save(function (err) {
-        if (!err) {
-            var response = addUrl(todo);
-            reply(response);
-        } else {
-            reply(Hapi.error.internal('Internal MongoDB error', err));
-        }
-    });
+   todo.save(function (err) {
+      if (!err) {
+	 var response = addUrl(request.info, todo);
+	 reply(response);
+      } else {
+	 reply(Hapi.error.internal('Internal MongoDB error', err));
+      }
+   });
 };
 
 var update = function(request, reply){
    Todo.findOneAndUpdate(request.params.id, request.payload, function (err, todo) {
-        if (!err) {
-           var response = addUrl(todo);
-           reply(response);
-        } else {
-           reply(Hapi.error.internal('Internal MongoDB error', err));
-        }
-    });
-
+     if (!err) {
+	 var response = addUrl(request.info, todo);
+	 reply(response);
+      } else {
+	 reply(Hapi.error.internal('Internal MongoDB error', err));
+      }
+   });
 };
 
 var getAll = function(request, reply){
    var todosWithUrl = [];
-    Todo.find({}, function (err, todos) {
-        if (!err) {
-           for(i in todos){
-              todosWithUrl.push(addUrl(todos[i]));
-           }
-           reply(todosWithUrl);
-        } else {
-            reply(err);
-        }
-    });
+  Todo.find({}, function (err, todos) {
+      if (!err) {
+	 for(i in todos){
+	    todosWithUrl.push(addUrl(request.info, todos[i]));
+	 }
+	 reply(todosWithUrl);
+      } else {
+	 reply(err);
+      }
+   });
 };
 
 var getById = function(request, reply){
-    Todo.findById(request.params.id, function(err, todo){
-        if (err){
-            reply(err);
-        }
-        var response = addUrl(todo);
-        reply(response);
-    });
+   Todo.findById(request.params.id, function(err, todo){
+      if (err){
+	 reply(err);
+      }
+      var response = addUrl(request.info, todo);
+      reply(response);
+   });
 };
 
 var deleteAll = function(request, reply) {
