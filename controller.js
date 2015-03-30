@@ -1,8 +1,8 @@
 var Todo        = require('./todo.js').Todo;
-
-var addUrl = function(server, todo){
-   var baseUrl = server.protocol + '://' + server.address + ':' + server.port;
+var addUrl = function(todo){
+   var baseUrl = 'http://' + process.env.HOST + ':' + process.env.PORT ;
    todo.url = baseUrl + '/' + todo._id;
+   console.log(todo.url);
    return todo;
 }
 
@@ -14,8 +14,7 @@ var save = function(request, reply){
 
     todo.save(function (err) {
         if (!err) {
-            var serverInfo = request.server.info;
-            var response = addUrl(serverInfo, todo);
+            var response = addUrl(todo);
             reply(response);
         } else {
             reply(Hapi.error.internal('Internal MongoDB error', err));
@@ -26,8 +25,7 @@ var save = function(request, reply){
 var update = function(request, reply){
    Todo.findOneAndUpdate(request.params.id, request.payload, function (err, todo) {
         if (!err) {
-           var serverInfo = request.server.info;
-           var response = addUrl(serverInfo, todo);
+           var response = addUrl(todo);
            reply(response);
         } else {
            reply(Hapi.error.internal('Internal MongoDB error', err));
@@ -38,11 +36,10 @@ var update = function(request, reply){
 
 var getAll = function(request, reply){
    var todosWithUrl = [];
-   var serverInfo = request.server.info;
     Todo.find({}, function (err, todos) {
         if (!err) {
            for(i in todos){
-              todosWithUrl.push(addUrl(serverInfo, todos[i]));
+              todosWithUrl.push(addUrl(todos[i]));
            }
            reply(todosWithUrl);
         } else {
@@ -52,12 +49,11 @@ var getAll = function(request, reply){
 };
 
 var getById = function(request, reply){
-    var serverInfo = request.server.info;
     Todo.findById(request.params.id, function(err, todo){
         if (err){
             reply(err);
         }
-        var response = addUrl(serverInfo, todo);
+        var response = addUrl(todo);
         reply(response);
     });
 };
