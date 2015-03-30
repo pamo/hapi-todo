@@ -12,36 +12,36 @@ var save = function(request, reply){
    todo.order = request.payload.order;
 
    todo.save(function (err) {
-      if (!err) {
-	 var response = addUrl(request.info, todo);
-	 reply(response);
-      } else {
-	 reply(Hapi.error.internal('Internal MongoDB error', err));
-      }
+    if (!err) {
+      var response = addUrl(request.info, todo);
+      reply(response);
+    } else {
+      reply(Hapi.error.internal('Internal MongoDB error', err));
+    }
    });
 };
 
 var update = function(request, reply){
    Todo.findOneAndUpdate(request.params.id, request.payload, function (err, todo) {
-     if (!err) {
-	 var response = addUrl(request.info, todo);
-	 reply(response);
-      } else {
-	 reply(Hapi.error.internal('Internal MongoDB error', err));
-      }
-   });
+    if (!err) {
+      var response = addUrl(request.info, todo);
+      reply(response);
+    } else {
+      reply(Hapi.error.internal('Internal MongoDB error', err));
+    }
+  });
 };
 
 var getAll = function(request, reply){
    var todosWithUrl = [];
   Todo.find({}, function (err, todos) {
       if (!err) {
-	 for(i in todos){
-	    todosWithUrl.push(addUrl(request.info, todos[i]));
-	 }
-	 reply(todosWithUrl);
+	       for(i in todos){
+	         todosWithUrl.push(addUrl(request.info, todos[i]));
+	       }
+         reply(todosWithUrl);
       } else {
-	 reply(err);
+        reply(err);
       }
    });
 };
@@ -49,7 +49,7 @@ var getAll = function(request, reply){
 var getById = function(request, reply){
    Todo.findById(request.params.id, function(err, todo){
       if (err){
-	 reply(err);
+	       reply(err);
       }
       var response = addUrl(request.info, todo);
       reply(response);
